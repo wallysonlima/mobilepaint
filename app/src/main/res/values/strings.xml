@@ -16,7 +16,7 @@
     <string name="menuitem_print">Print</string>
     <string name="message_erase">Erase the drawing?</string>
     <string name="message_error_saving">There was an error saving the image</string>
-    <string name="message_saved">Your saved painting can be viewed in the Photos app by selecting Device Folders from that app\\'s menu</string>
+    <string name="message_saved">Your saved painting can be viewed in the Photos app by selecting Device Folders from that app\'s menu</string>
     <string name="message_error_printing">Your device does not support printing</string>
     <string name="permission_explanation">To save an image, the app requires permission to write to external storage</string>
     <string name="title_color_dialog">Choose Color</string>

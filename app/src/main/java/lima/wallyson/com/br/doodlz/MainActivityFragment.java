@@ -1,7 +1,9 @@
 package lima.wallyson.com.br.doodlz;
 
-import android.support.v4.app.Fragment;
+
 import android.os.Bundle;
+
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +35,7 @@ public class MainActivityFragment extends Fragment {
 
     // used to identify the request for using external storage, which
     // the save image feature needs
-    private static final int SAVE_IMAGE_PERMISSION_REQUEST_ONCE = 1;
-
-
-    public View MainActivityFragment() {
-    }
+    private static final int SAVE_IMAGE_PERMISSION_REQUEST_CODE = 1;
 
     // called when Fragment's view needs to be created
     @Override
@@ -63,7 +61,7 @@ public class MainActivityFragment extends Fragment {
     //Override
     public void onResume() {
         super.onResume();
-        enableAcceLerometerListening(); // listen for shake event
+        enableAccelerometerListening(); // listen for shake event
     }
 
     // enable listening for accelerometer events
@@ -75,7 +73,7 @@ public class MainActivityFragment extends Fragment {
                 );
 
         // register to listen for accelerometer events
-        SensorManager.registerListener(sensorEventListener,
+        sensorManager.registerListener(sensorEventListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -84,7 +82,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        disableAcceLerometerListening(); // stop listening for shake
+        disableAccelerometerListening(); // stop listening for shake
     }
 
     // disable listening for accelerometer events
@@ -104,7 +102,7 @@ public class MainActivityFragment extends Fragment {
             new SensorEventListener() {
                 // use accelerometer to determine whether user shook device
                 @Override
-                public void onSensorChanged(SensorEvent sensorEvent) {
+                public void onSensorChanged(SensorEvent event) {
                     // ensure that other dialogs are not displayed
                     if (!dialogOnScreen) {
                         // get x, y, and z values for the SensorEvent
@@ -140,4 +138,116 @@ public class MainActivityFragment extends Fragment {
         EraseImageDialogFragment fragment = new EraseImageDialogFragment();
         fragment.show(getFragmentManager(), "erase dialog");
     }
+
+    // displays the fragment's menu items
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.doodle_fragment_menu, menu);
+    }
+
+    // handle choice from options menu
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // switch based on the MenuItem id
+        switch (item.getItemId()) {
+            case R.id.color:
+                ColorDialogFragment colorDialog = new ColorDialogFragment();
+                colorDialog.show(getFragmentManager(), "color dialog");
+                return true; // consume the menu event
+
+            case R.id.line_width:
+                LineWidthDialogFragment widthDialog =
+                        new LineWidthDialogFragment();
+                widthDialog.show(getFragmentManager(), "line width dialog");
+                return true; // consume the menu event
+
+            case R.id.delete_drawing:
+                confirmErase(); // confirm before erasing image
+                return true; // consume the menu event
+
+            case R.id.save:
+                saveImage(); // check permission and save current image
+                return true; // consume the menu event
+
+            case R.id.print:
+                doodleView.printImage(); // print the current images
+                return true; // consume the menu event
+            }
+
+            return super.onOptionsItemSelected(item);
+    }
+
+    // requests the permission needed for saving the image if
+    // necessary or saves the image if the app already has permission
+    private void saveImage() {
+        // checks if the app does not have permission needed
+        // to save the image
+        if (getContext().checkSelfPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED) {
+            // shows an explanation of why permission is needed
+            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(getActivity());
+
+                // set Alert Dialog's message
+                builder.setMessage(R.string.permission_explanation);
+
+                // add an OK button to the dialog
+                builder.setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // request permission
+                                requestPermissions(new String[]{
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        SAVE_IMAGE_PERMISSION_REQUEST_CODE);
+                            }
+                        }
+                );
+
+                // display the dialog
+                builder.create().show();
+
+            } else {
+                // request permission
+                requestPermissions(
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        SAVE_IMAGE_PERMISSION_REQUEST_CODE
+                );
+            }
+        }
+
+        else { // if app already has permission to write to external storage
+            doodleView.saveImage(); // save the image
+        }
+    }
+
+    // called by the system when the user either grants or denies the
+    // permission for saving an image
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String [] permissions,
+                                           int[] grantResults) {
+        // switch chooses appropriate action based on which feature
+        // requested permission
+        switch(requestCode) {
+            case SAVE_IMAGE_PERMISSION_REQUEST_CODE:
+                if ( grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    doodleView.saveImage(); // save the image
+
+                return;
+        }
+    }
+
+    public DoodleView getDoodleView() {
+        return doodleView;
+    }
+
+    // indicates whether a dialog is displayed
+    public void setDialogOnScreen(boolean visible) {
+        dialogOnScreen = visible;
+    }
+
+
 }

@@ -19,8 +19,6 @@ import android.hardware.SensorManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * A placeholder fragment containing a simple view.

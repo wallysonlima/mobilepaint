@@ -4,11 +4,7 @@
     android:layout_height="match_parent"
     tools:context="lima.wallyson.com.br.doodlz.MainActivityFragment"
     tools:showIn="@layout/activity_main"
-    android:id="@+id/doodleView">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
-
+    android:id="@+id/doodleView"
+    android:orientation="vertical"
+    android:padding="0dp">
 </lima.wallyson.com.br.doodlz.DoodleView>
